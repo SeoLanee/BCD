@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('include') %>
+</head>
+<body>
+    
+    <label for="id" class="form-label"> ID </label> <br />
+    <input type="text" id="id" class="form-control" /> <br />
+    <label for="pw" class="form-label"> Password</label> <br />
+    <input type="text" id="pw" class="form-control" /> <br />
+    <label for="confirm" class="form-label" > Confirm Password </label> <br />
+    <input type="text" id="confirm" class="form-control" /> <br />
+
+    <hr />
+
+    <button id="admin_btn" class="btn btn-danger">Create Admin Wallet</button> <br />
+    <button id="submit_btn" class="btn btn-outline-danger">Submit</button> <br />
+    <a href="/" class="btn btn-outline-secondary">Home</a>
+
+    <hr />
+    <div id="result"></div>
+
+</body>
+</html>
+
+<script>
+
+    $("#submit_btn").click(() => {
+        let id = $("#id").val();
+        let pw = $("#pw").val();
+        let confirm = $("#confirm").val();
+        
+        console.log(id, pw, confirm);
+
+        if (pw != confirm) {
+            alert('Please confirm password again.');
+        } 
+        else {
+            $.post('/user', { id, pw }, (data) => {
+                $("#result").empty();
+                $("#result").append(json.stringify(data));
+            });
+        }
+    })
+
+    $("#admin_btn").click(() => {
+        $.post('/admin', { id, pw }, (data) => {
+            $("#result").empty();
+            $("#result").append(json.stringify(data));
+        });
+    });
+</script>

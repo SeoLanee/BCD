@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <!-- css 부트스트랩, 폰트 적용     -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300&display=swap" rel="stylesheet">
+
+    <!-- jquery 적용 -->    
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+    <!-- 기타 설정 -->
+    <style>
+        .center { text-align:center; }
+        .font_ss   { font-family: 'Noto Sans KR', sans-serif; }
+    </style>
+</head>
+<body>
+    <br />
+
+    <div class="container">
+        <h2> Create Letter </h2>
+        <br />
+        <hr />
+        <br />
+        <label for="donorID" class="form-label"> Donor ID </label>
+        <input type="text" id="donorID" class="form-control" /> 
+        <br>
+
+        <label for="bloodID" class="form-label"> Blood ID </label>
+        <input type="text" id="bloodID" class="form-control" /> 
+        <br>
+        
+        <label for="bloodtype" class="form-label"> BloodType </label>
+        <input type="text" id="bloodtype" class="form-control" /> 
+        <br>
+        
+        <label for="donationtype" class="form-label"> DonationType </label>
+        <input type="text" id="donationtype" class="form-control" /> 
+        <br>
+        <br>
+
+        <button id="create_btn" class="btn btn-outline-danger">Submit</button> <br />
+        <a href="/" class="btn btn-outline-secondary">Home</a> <br />
+
+        <div id="create_result"></div>
+
+        <script>
+            $("#create_btn").click(() => {
+                let donorID = $("#donorID").val();
+                let bloodID = $("#bloodID").val();
+                let bloodtype = $("#bloodtype").val();
+                let donationtype = $("#donationtype").val();
+
+                console.log('Creating letter: ', donorID, bloodID, bloodtype, donationtype);
+
+                $.post('/letter', {donorID, bloodID, bloodtype, donationtype}, (data) => {
+                    $("#create_result").empty();
+                    $("#create_result").append(JSON.stringify(data));
+                })
+            })
+        </script>
+
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container">
+        <h2> Query Letter </h2>
+        <br />
+        <hr />
+        <br />
+        <label for="donorID_query" class="form-label"> Letter ID </label>
+        <input type="text" id="donorID_query" class="form-control" /> 
+        <br>
+
+        <label for="bloodID_query" class="form-label"> BloodID </label>
+        <input type="text" id="bloodID_query" class="form-control" /> 
+        <br>
+        <br>
+
+        <button id="query_btn" class="btn btn-outline-danger">Submit</button> <br />
+        <a href="/" class="btn btn-outline-secondary">Home</a> <br />
+
+        <div id="query_result"></div>
+
+        <script>
+            $("#query_btn").click(() => {
+                let donorID = $("#donorID_query").val();
+                let bloodID = $("#bloodID_query").val();
+
+                console.log('Querying letter: ', donorID, bloodID);
+
+                $.get('/letter', {donorID, bloodID}, (data) => {
+                    $("#query_result").empty();
+                    $("#query_result").append(JSON.stringify(data));
+                })
+            })
+        </script>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container">
+        <h2> Get My Letters </h2>
+        <br />
+        <hr />
+        <br />
+        <label for="myID" class="form-label"> My ID </label>
+        <input type="text" id="myID" class="form-control" /> <br />
+
+        <button id="my_btn" class="btn btn-outline-danger">Submit</button> <br />
+        <a href="/" class="btn btn-outline-secondary">Home</a> <br />
+
+        <div id="my_result"></div>
+
+        <script>
+            $("#my_btn").click(() => {
+                const donorID = $("#myID").val();
+                console.log('Getting my letters: ', donorID);
+
+                $.get('/letter/getletters', donorID, (data, status) => {
+                    console.log('building table');
+                    console.log(data.result);
+
+                    $("#my_result").empty();
+                    buildFormat();
+                    buildTable(data);
+                });
+
+                function buildFormat(){
+                    let format = `
+                        <table class="table" id="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Blood ID</th>
+                                    <th scope="col">Blood Type</th>
+                                    <th scope="col">DonationType</th>
+                                </tr>
+                            </thead>  
+                            <tbody id="mytable"></tbody>
+                        </table>
+                        `
+                    $("#result").append(format);
+                }
+
+                function buildTable(data) {
+                    for(var i = data.message.length - 1; i >= 0; i--){
+                        var row = `
+                                <tr>
+                                    <td>${i + 1}</td>                 
+                                    <td>${data.message[i].letters.date}</td>                 
+                                    <td>${data.message[i].letters.bloodID}</td>                 
+                                    <td>${data.message[i].letters.bloodtype}</td>               
+                                    <td>${data.message[i].letters.donationtype}</td>
+                                </tr>
+                                `
+                        $("#mytable").append(row);
+                    }
+                }
+            });
+        </script>
+    </div>
+    
+    
+
+</body>
+</html>
